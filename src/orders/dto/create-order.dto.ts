@@ -1,4 +1,4 @@
-import { IOrderCreate } from '@src/_types/orders';
+import { IOrderCreate } from '@src/_types/orders.types';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -33,6 +33,26 @@ export class DtoOrderCreate implements Required<IOrderCreate> {
   @IsString()
   email!: string;
 
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItemElement)
+  items!: ItemElement[];
+}
+
+export class DtoOrderUpdate implements Required<IOrderCreate> {
+  @IsOptional()
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  phone!: string;
+
+  @IsOptional()
+  @IsString()
+  email!: string;
+
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ItemElement)

@@ -1,26 +1,23 @@
-import { EnumViewNames, ICreateView, IView } from '@src/_types/view';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
-@Table({
-  tableName: 'view',
-  timestamps: false,
-})
-export class ViewModel
-  extends Model<IView, ICreateView>
-  implements Required<IView>
-{
+import { EnumViewNames, IView } from '@src/_types/view.types';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export class ViewModel implements Required<IView> {
+  @PrimaryGeneratedColumn()
   declare id: number;
 
   @Column({
-    type: DataType.ENUM(...Object.values(EnumViewNames)),
+    type: 'enum',
+    enum: EnumViewNames,
     unique: true,
   })
   declare name: EnumViewNames;
 
   @Column({
-    type: DataType.JSONB,
+    type: 'jsonb',
   })
   declare payload: object;
 
-  @Column(DataType.STRING)
+  @Column()
   declare description: string;
 }

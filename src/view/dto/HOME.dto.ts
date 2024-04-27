@@ -1,8 +1,5 @@
-import { EnumViewNames, ICreateView } from '@src/_types/view';
-import Ajv from 'ajv';
+import { EnumViewNames, ICreateView } from '@src/_types/view.types';
 import { IsDefined, IsEnum, IsObject, IsString } from 'class-validator';
-
-const ajv = new Ajv();
 
 export class DtoView implements ICreateView {
   @IsEnum(EnumViewNames)

@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { DtoEntryCreate } from './dto/create-entry.dto';
 import { EntriesService } from './entries.service';
 
@@ -19,17 +27,20 @@ export class EntriesController {
   }
 
   @Get('/getById')
-  async getById(@Param('id') id: string) {
-    return this.entriesService.getById(+id);
+  async getById(@Body('id', new ParseIntPipe()) id: number) {
+    return this.entriesService.getById(id);
   }
 
   @Post('/update')
-  update(@Param('id') id: string, @Body() updateEntryDto: DtoEntryCreate) {
-    return this.entriesService.update(+id, updateEntryDto);
+  update(
+    @Body('id', new ParseIntPipe()) id: number,
+    @Body() updateData: DtoEntryCreate,
+  ) {
+    return this.entriesService.update(id, updateData);
   }
 
   @Delete('/delete')
-  async remove(@Param('id') id: string) {
-    return this.entriesService.remove(+id);
+  async remove(@Param('id', new ParseIntPipe()) id: number) {
+    return this.entriesService.delete(id);
   }
 }

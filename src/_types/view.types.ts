@@ -1,3 +1,5 @@
+import { SchemaType } from './utils.types';
+
 export enum EnumViewNames {
   SECTIONS = 'SECTIONS',
   COUNTRYS = 'COUNTRYS',
@@ -34,37 +36,37 @@ export type ViewAttrValue<Value> = {
 
 /* кастомные интерфейсы страниц */
 
-// export interface IView__SECTIONS extends IView {
-//   payload: ViewAttrValue<{ id: number; name: string; img: string }[]>;
-// }
+export interface IView__HOME extends IView {
+  payload: ViewAttrValue<{ id: number; name: string; img: string }[]>;
+}
 
-// export const SchemaView__SECTIONS: SchemaType<Omit<IView__SECTIONS, 'id'>> = {
-//   type: 'object',
-//   properties: {
-//     name: { const: EnumViewNames['SECTIONS'] },
-//     description: { type: 'string' },
-//     payload: {
-//       type: 'object',
-//       properties: {
-//         description: { type: 'string' },
-//         value: {
-//           type: 'array',
-//           items: {
-//             type: 'object',
-//             properties: {
-//               id: { type: 'number' },
-//               name: { type: 'string' },
-//               img: { type: 'string' },
-//             },
-//             required: ['id', 'name', 'img'],
-//           },
-//         },
-//       },
-//       required: ['value', 'description'],
-//     },
-//   },
-//   required: ['description', 'payload', 'name'],
-// };
+export const SchemaView__HOME: SchemaType<Omit<IView__HOME, 'id'>> = {
+  type: 'object',
+  properties: {
+    name: { const: EnumViewNames['SECTIONS'] },
+    description: { type: 'string' },
+    payload: {
+      type: 'object',
+      properties: {
+        description: { type: 'string' },
+        value: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+              img: { type: 'string' },
+            },
+            required: ['id', 'name', 'img'],
+          },
+        },
+      },
+      required: ['value', 'description'],
+    },
+  },
+  required: ['description', 'payload', 'name'],
+};
 
 // export interface IView__SEASONS extends IView {
 //   name: EnumViewNames.SEASONS;
@@ -130,4 +132,4 @@ export type ViewAttrValue<Value> = {
 //   required: ['description', 'payload', 'name'],
 // };
 
-// export type IViewUnion = IView__SECTIONS | IView__COUNTRYS | IView__SEASONS;
+export type IViewUnion = IView__HOME;

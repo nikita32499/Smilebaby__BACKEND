@@ -1,53 +1,36 @@
-import { IOrder, IOrderCreate } from '@src/_types/orders';
-import {
-  AfterFind,
-  AllowNull,
-  AutoIncrement,
-  Column,
-  DataType,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
+import { IOrder } from '@src/_types/orders.types';
+import { AfterLoad, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Table({ tableName: 'orders', timestamps: false })
-export class OrderModel
-  extends Model<IOrder, IOrderCreate>
-  implements Required<IOrder>
-{
-  @PrimaryKey
-  @AutoIncrement
-  @Column
+@Entity()
+export class OrderModel implements Required<IOrder> {
+  @PrimaryGeneratedColumn()
   declare id: number;
 
-  @Column(DataType.STRING)
+  @Column()
   declare name: string;
 
-  @Column(DataType.STRING)
+  @Column()
   declare phone: string;
 
-  @AllowNull
   @Column({
-    type: DataType.STRING,
-    defaultValue: () => null,
+    default: null,
+    nullable: true,
   })
   declare email: string;
 
-  @Column(DataType.JSONB)
+  @Column({
+    type: 'jsonb',
+  })
   declare items: IOrder['items'];
 
   @Column({
-    type: DataType.BIGINT,
-    defaultValue: () => Date.now(),
+    type: 'bigint',
+    default: () => Date.now().toString(),
   })
   declare createdAt: number;
 
-  @AfterFind
-  static FindResult(findResult: IOrder | IOrder[] | null) {
-    if (findResult == null) return;
-    if (!Array.isArray(findResult)) findResult = [findResult];
-    for (const el of findResult) {
-      el.createdAt = Number(el.createdAt);
-    }
+  @AfterLoad()
+  afterLoadHandler() {
+    this.createdAt = Number(this.createdAt);
   }
 }

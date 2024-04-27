@@ -3,11 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { DtoOrderCreate } from './dto/create-order.dto';
+import { IOrder } from '@src/_types/orders.types';
+import { DtoOrderCreate, DtoOrderUpdate } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
 
 @Controller({
@@ -17,27 +19,32 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post('/create')
-  async create(@Body() createOrderDto: DtoOrderCreate) {
+  async create(@Body() createOrderDto: DtoOrderCreate): Promise<IOrder | null> {
     return this.ordersService.create(createOrderDto);
   }
 
   @Get('/getAll')
-  async getAll() {
+  async getAll(): Promise<IOrder[]> {
     return this.ordersService.getAll();
   }
 
   @Get('/getById')
-  async getById(@Param('id') id: number) {
+  async getById(
+    @Query('id', new ParseIntPipe()) id: number,
+  ): Promise<IOrder | null> {
     return this.ordersService.getById(id);
   }
 
   @Patch('/update')
-  async update(@Param('id') id: number, @Body() updateData: DtoOrderCreate) {
+  async update(
+    @Body('id', new ParseIntPipe()) id: number,
+    @Body('data') updateData: DtoOrderUpdate,
+  ): Promise<IOrder | null> {
     return this.ordersService.update(id, updateData);
   }
 
   @Delete('/delete')
-  async delete(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+  async delete(@Body('id', new ParseIntPipe()) id: number) {
+    return this.ordersService.delete(id);
   }
 }

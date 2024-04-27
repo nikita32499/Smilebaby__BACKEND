@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ViewController } from './view.controller';
 import { ViewModel } from './view.model';
 import { ViewService } from './view.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([ViewModel])],
+  imports: [TypeOrmModule.forFeature([ViewModel])],
   controllers: [ViewController],
   providers: [ViewService],
 })

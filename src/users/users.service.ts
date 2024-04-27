@@ -1,28 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { IJwtUserData, isJwtUserData, IUser, UserRole } from '@src/_types/user';
+import {
+  IJwtUserData,
+  isJwtUserData,
+  IUser,
+  UserRole,
+} from '@src/_types/user.types';
 
 import bcrypt from 'bcrypt';
 
 import { DtoUserCreate, DtoUserUpdate, UserModel } from './users.model';
 
+import { InjectRepository } from '@nestjs/typeorm';
 import jwt from 'jsonwebtoken';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(UserModel) private User: typeof UserModel) {}
+  constructor(
+    @InjectRepository(UserModel) private User: Repository<UserModel>,
+  ) {}
 
   async getAll(): Promise<IUser[]> {
-    return (await this.User.findAll()).sort((a, b) => a.id - b.id);
+    return (await this.User.find()).sort((a, b) => a.id - b.id);
   }
 
-  async getById(id: number): Promise<IUser | null> {
+  async getById(id: number) {
     return await this.User.findOne({
       where: { id },
     });
   }
 
-  async create(createData: DtoUserCreate): Promise<IUser | Error> {
+  async create(createData: DtoUserCreate) {
     const user = await this.User.findOne({
       where: {
         login: createData.login,
@@ -35,26 +43,27 @@ export class UsersService {
 
     createData.password = await bcrypt.hash(createData.password, salt);
 
-    return await this.User.create({
+    const userEntry = await this.User.create({
       ...createData,
       role: createData.role ?? UserRole.USER,
     });
+    return await this.User.save(userEntry);
   }
 
-  async update(id: number, updateData: DtoUserUpdate): Promise<IUser | null> {
+  async update(id: number, updateData: DtoUserUpdate) {
     const user = await this.getById(id);
     if (!user) return null;
-    await this.User.update(updateData, { where: { id } });
+    await this.User.update(id, updateData);
 
     return await this.getById(id);
   }
 
-  async delete(id: number): Promise<IUser | null> {
-    const user = await this.User.findByPk(id);
+  async delete(id: number) {
+    const user = await this.getById(id);
 
     if (!user || user.role === 'admin') return null;
 
-    await user.destroy();
+    await this.User.delete(user.id);
 
     return user;
   }
@@ -66,14 +75,9 @@ export class UsersService {
     const passwordSuccess = await bcrypt.compare(password, user.password);
     if (!passwordSuccess) return null;
 
-    await this.User.update(
-      {
-        lastAt: Date.now(),
-      },
-      {
-        where: { id: user.id },
-      },
-    );
+    await this.User.update(user.id, {
+      lastAt: Date.now(),
+    });
 
     return user;
   }

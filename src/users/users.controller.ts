@@ -10,7 +10,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Roles } from '@src/_decorators/Roles';
-import { IUserJwtData } from '@src/_types/user';
+import { IUser, IUserJwtData } from '@src/_types/user.types';
 import { Response } from 'express';
 import { DtoUserCreate, DtoUserUpdate } from './users.model';
 import { UsersService } from './users.service';
@@ -24,13 +24,15 @@ export class UsersController {
   //
   @Roles('admin')
   @Get('/getAll')
-  async getAll() {
+  async getAll(): Promise<IUser[]> {
     return await this.usersService.getAll();
   }
 
   @Roles('admin')
   @Get('/getById')
-  async getById(@Query('id', new ParseIntPipe()) id: number) {
+  async getById(
+    @Query('id', new ParseIntPipe()) id: number,
+  ): Promise<IUser | null> {
     return await this.usersService.getById(id);
   }
 
@@ -39,7 +41,7 @@ export class UsersController {
   async update(
     @Body('id', new ParseIntPipe()) id: number,
     @Body('data') updateData: DtoUserUpdate,
-  ) {
+  ): Promise<IUser | null> {
     const user = await this.usersService.update(id, updateData);
     if (!user) throw new BadRequestException('Пользователь не найден');
     return user;
@@ -47,7 +49,7 @@ export class UsersController {
 
   @Roles('admin')
   @Post('/create')
-  async create(@Body() createData: DtoUserCreate) {
+  async create(@Body() createData: DtoUserCreate): Promise<IUser> {
     const user = await this.usersService.create(createData);
     if (user instanceof Error) throw new BadRequestException(user.message);
     return user;
@@ -55,7 +57,9 @@ export class UsersController {
 
   @Roles('admin')
   @Delete('/delete')
-  async delete(@Body('id', new ParseIntPipe()) id: number) {
+  async delete(
+    @Body('id', new ParseIntPipe()) id: number,
+  ): Promise<IUser | null> {
     const user = await this.usersService.delete(id);
     if (!user) throw new BadRequestException('Пользователь не найден');
     return user;

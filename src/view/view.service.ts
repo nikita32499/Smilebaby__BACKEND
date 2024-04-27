@@ -1,23 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { EnumViewNames } from '@src/_types/view';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EnumViewNames } from '@src/_types/view.types';
+import { Repository } from 'typeorm';
 import { ViewModel } from './view.model';
 
 @Injectable()
 export class ViewService {
   constructor(
-    @InjectModel(ViewModel) private readonly View: typeof ViewModel,
+    @InjectRepository(ViewModel) private View: Repository<ViewModel>,
   ) {}
 
   async saveView(name: EnumViewNames, payload: object, description: string) {
     JSON.stringify(payload);
-    const result = await this.View.upsert({
-      name,
-      payload,
-      description,
-    });
 
-    return result[0];
+    await this.View.upsert(
+      {
+        name,
+        payload,
+        description,
+      },
+      ['name'],
+    );
+    return await this.getView(name);
   }
 
   async getView(name: EnumViewNames) {
@@ -29,6 +33,6 @@ export class ViewService {
   }
 
   async getAll() {
-    return (await this.View.findAll()).sort((a, b) => a.id - b.id);
+    return (await this.View.find()).sort((a, b) => a.id - b.id);
   }
 }

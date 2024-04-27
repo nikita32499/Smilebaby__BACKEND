@@ -1,31 +1,18 @@
-import { EnumEntries, IEntries, IEntriesCreate } from '@src/_types/entries';
+import { EnumEntries, IEntries } from '@src/_types/entries.types';
 import { ItemModel } from '@src/items/items.model';
-import {
-  AutoIncrement,
-  Column,
-  DataType,
-  HasMany,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Table({
-  tableName: 'entries',
-  timestamps: false,
-})
-export class EntriesModel extends Model<IEntries, IEntriesCreate> {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
+@Entity()
+export class EntriesModel implements Required<IEntries> {
+  @PrimaryGeneratedColumn()
   declare id: number;
 
-  @Column(DataType.ENUM(...Object.values(EnumEntries)))
+  @Column()
   declare name: EnumEntries;
 
-  @Column(DataType.STRING)
+  @Column()
   declare value: string;
 
-  @HasMany(() => ItemModel)
+  @OneToMany(() => ItemModel, (item) => item.id) // Подставьте соответствующее название связи и атрибут в ItemModel
   declare items: ItemModel[];
 }

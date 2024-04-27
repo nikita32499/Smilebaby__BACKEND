@@ -1,5 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { DtoItemCreate } from './dto/create-item.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
+import { DtoItemCreate, DtoItemUpdate } from './dto/create-item.dto';
 import { ItemsService } from './items.service';
 
 @Controller({
@@ -19,17 +27,20 @@ export class ItemsController {
   }
 
   @Get('/getById')
-  getById(@Param('id') id: string) {
-    return this.itemsService.getById(+id);
+  getById(@Param('id', new ParseIntPipe()) id: number) {
+    return this.itemsService.getById(id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-  //   return this.itemsService.update(+id, updateItemDto);
-  // }
+  @Post('/update')
+  update(
+    @Body('id', new ParseIntPipe()) id: number,
+    @Body('data') updateData: DtoItemUpdate,
+  ) {
+    return this.itemsService.update(id, updateData);
+  }
 
   @Delete('/delete')
-  delete(@Param('id') id: string) {
-    return this.itemsService.remove(+id);
+  delete(@Param('id', new ParseIntPipe()) id: number) {
+    return this.itemsService.delete(+id);
   }
 }

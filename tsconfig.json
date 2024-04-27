@@ -8,15 +8,28 @@
     "allowJs": true,
     "resolveJsonModule": true,
 
+    /* Strict */
     "strict": true,
     "noUncheckedIndexedAccess": true,
 
+    /* For Node.js */
+
+    // "moduleResolution": "NodeNext",
+    // "module": "NodeNext",
+    // "outDir": "./dist",
+    // "lib": ["ES2015"],
     "moduleResolution": "Node",
     "module": "CommonJS",
     "outDir": "./dist",
-    "lib": ["ES2022"],
+    "lib": ["ES2015"],
 
-    "declaration": true,
+    /* For Front */
+    // "moduleResolution": "Bundler",
+    // "module": "ESNext",
+    // "noEmit": true,
+    // "lib": ["ES2015", "DOM", "DOM.Iterable"],
+
+    "declaration": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
@@ -42,6 +55,8 @@
     "baseUrl": ".",
 
     "sourceMap": true,
+
+    "removeComments": true,
 
     "paths": {
       "@src/*": ["src/*"]

@@ -1,4 +1,4 @@
-import { IItem } from './items';
+import { IItem } from './items.types';
 
 export interface IOrder {
   id: number;

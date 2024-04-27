@@ -1,3 +1,5 @@
+import { IEntries } from './entries.types';
+
 export interface IItem {
   id: number;
   name: string;
@@ -7,19 +9,20 @@ export interface IItem {
   img_prev: string[];
   amount: { quantity: number; size: string }[];
 
-  // seasonId: number;
-  // season: IEntries;
+  seasonId: number;
+  season: IEntries;
 
-  // countryId: number;
-  // country: IEntries;
+  countryId: number;
+  country: IEntries;
 
-  // sectionId: number;
-  // section: IEntries;
+  sectionId: number;
+  section: IEntries;
 
-  lastAt: number;
   createdAt: number;
 
-  url: string;
+  lastAt: number;
+
+  slug: string;
 }
 
 export interface IItemCreate

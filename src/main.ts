@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 // somewhere in your initialization file
 
 import dotenv from 'dotenv';
-import 'src/_types/express';
+import 'src/_types/express.types';
 
 dotenv.config();
 

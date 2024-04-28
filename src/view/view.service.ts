@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EnumViewNames } from '@src/_types/view.types';
 import { Repository } from 'typeorm';
+import { DtoView } from './dto/HOME.dto';
 import { ViewModel } from './view.model';
 
 @Injectable()
@@ -10,18 +11,18 @@ export class ViewService {
     @InjectRepository(ViewModel) private View: Repository<ViewModel>,
   ) {}
 
-  async saveView(name: EnumViewNames, payload: object, description: string) {
-    JSON.stringify(payload);
+  async saveView(createData: DtoView) {
+    JSON.stringify(createData);
 
     await this.View.upsert(
       {
-        name,
-        payload,
-        description,
+        name: createData.name,
+        payload: createData.payload,
+        description: createData.description,
       },
       ['name'],
     );
-    return await this.getView(name);
+    return await this.getView(createData.name);
   }
 
   async getView(name: EnumViewNames) {

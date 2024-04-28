@@ -1,9 +1,7 @@
 import { SchemaType } from './utils.types';
 
 export enum EnumViewNames {
-  SECTIONS = 'SECTIONS',
-  COUNTRYS = 'COUNTRYS',
-  SEASONS = 'SEASONS',
+  HOME = 'HOME',
 }
 
 export function isView(data: unknown): data is IView {
@@ -37,99 +35,43 @@ export type ViewAttrValue<Value> = {
 /* кастомные интерфейсы страниц */
 
 export interface IView__HOME extends IView {
-  payload: ViewAttrValue<{ id: number; name: string; img: string }[]>;
+  payload: {
+    slider: ViewAttrValue<{ id: number; target: string; img_url: string }[]>;
+  };
 }
 
 export const SchemaView__HOME: SchemaType<Omit<IView__HOME, 'id'>> = {
   type: 'object',
   properties: {
-    name: { const: EnumViewNames['SECTIONS'] },
+    name: { const: EnumViewNames['HOME'] },
     description: { type: 'string' },
     payload: {
       type: 'object',
       properties: {
-        description: { type: 'string' },
-        value: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'number' },
-              name: { type: 'string' },
-              img: { type: 'string' },
+        slider: {
+          type: 'object',
+          properties: {
+            description: { type: 'string' },
+            value: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  target: { type: 'string' },
+                  img_url: { type: 'string' },
+                },
+                required: ['id', 'target', 'img_url'],
+              },
             },
-            required: ['id', 'name', 'img'],
           },
+          required: ['value', 'description'],
         },
       },
-      required: ['value', 'description'],
+      required: ['slider'],
     },
   },
   required: ['description', 'payload', 'name'],
 };
-
-// export interface IView__SEASONS extends IView {
-//   name: EnumViewNames.SEASONS;
-//   payload: ViewAttrValue<{ id: number; season: string }[]>;
-// }
-
-// export const SchemaView__SEASONS: SchemaType<Omit<IView__SEASONS, 'id'>> = {
-//   type: 'object',
-//   properties: {
-//     name: { const: EnumViewNames.SEASONS },
-//     description: { type: 'string' },
-//     payload: {
-//       type: 'object',
-//       properties: {
-//         description: { type: 'string' },
-//         value: {
-//           type: 'array',
-//           items: {
-//             type: 'object',
-//             properties: {
-//               id: { type: 'number' },
-//               season: { type: 'string' },
-//             },
-//             required: ['id', 'season'],
-//           },
-//         },
-//       },
-//       required: ['value', 'description'],
-//     },
-//   },
-//   required: ['description', 'payload', 'name'],
-// };
-
-// export interface IView__COUNTRYS extends IView {
-//   name: EnumViewNames.COUNTRYS;
-//   payload: ViewAttrValue<{ id: number; country: string }[]>;
-// }
-
-// export const SchemaView__COUNTRYS: SchemaType<Omit<IView__COUNTRYS, 'id'>> = {
-//   type: 'object',
-//   properties: {
-//     name: { const: EnumViewNames.COUNTRYS },
-//     description: { type: 'string' },
-//     payload: {
-//       type: 'object',
-//       properties: {
-//         description: { type: 'string' },
-//         value: {
-//           type: 'array',
-//           items: {
-//             type: 'object',
-//             properties: {
-//               id: { type: 'number' },
-//               country: { type: 'string' },
-//             },
-//             required: ['id', 'country'],
-//           },
-//         },
-//       },
-//       required: ['value', 'description'],
-//     },
-//   },
-//   required: ['description', 'payload', 'name'],
-// };
 
 export type IViewUnion = IView__HOME;

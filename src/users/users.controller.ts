@@ -10,7 +10,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Roles } from '@src/_decorators/Roles';
-import { IUser, IUserJwtData } from '@src/_types/user.types';
+import { IUser, IUserJwtData, UserRole } from '@src/_types/user.types';
 import { Response } from 'express';
 import { DtoUserCreate, DtoUserUpdate } from './users.model';
 import { UsersService } from './users.service';
@@ -22,13 +22,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   //
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @Get('/getAll')
   async getAll(): Promise<IUser[]> {
     return await this.usersService.getAll();
   }
 
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @Get('/getById')
   async getById(
     @Query('id', new ParseIntPipe()) id: number,
@@ -36,7 +36,7 @@ export class UsersController {
     return await this.usersService.getById(id);
   }
 
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @Post('/update')
   async update(
     @Body('id', new ParseIntPipe()) id: number,
@@ -47,7 +47,7 @@ export class UsersController {
     return user;
   }
 
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @Post('/create')
   async create(@Body() createData: DtoUserCreate): Promise<IUser> {
     const user = await this.usersService.create(createData);
@@ -55,7 +55,7 @@ export class UsersController {
     return user;
   }
 
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @Delete('/delete')
   async delete(
     @Body('id', new ParseIntPipe()) id: number,
@@ -88,7 +88,7 @@ export class UsersController {
     response.end();
   }
 
-  @Roles('public')
+  // @Roles('public')
   @Post('/validateToken')
   async validateToken(@Body('token') token: string) {
     return await this.usersService.validateToken(token);

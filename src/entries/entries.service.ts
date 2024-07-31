@@ -1,34 +1,54 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { DtoEntryCreate } from './dto/create-entry.dto';
-import { EntriesModel } from './entries.model';
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { createSlug } from '_helpers/slug'
+import { isUpdateSuccess } from '_helpers/typeOrm'
+import {
+    EnumEntries,
+    IEntriesCreate,
+    IEntriesUpdate,
+} from 'shared_SmileBaby/dist/types/entries.types'
+import { Repository } from 'typeorm'
+import { EntriesModel } from './entries.model'
+import { IEntriesRepository } from './types/EntriesRepository.types'
 
 @Injectable()
-export class EntriesService {
-  constructor(
-    @InjectRepository(EntriesModel)
-    private readonly Entry: Repository<EntriesModel>,
-  ) {}
+export class EntriesService implements IEntriesRepository {
+    constructor(
+        @InjectRepository(EntriesModel)
+        private Entry: Repository<EntriesModel>,
+    ) { }
 
-  async create(createData: DtoEntryCreate) {
-    const newEntity = await this.Entry.create(createData);
-    return await this.Entry.save(newEntity);
-  }
+    async create({ createData }: IEntriesCreate) {
+        if (createData.name === EnumEntries.SECTION) {
+            const EntriesList = await this.getAll()
+            const nextId = (EntriesList[EntriesList.length - 1]?.id ?? 0) + 1
+            createData.data.slug = createSlug(`${createData.value}-${nextId}`)
+        }
 
-  async getAll() {
-    return await this.Entry.find();
-  }
+        const userEntry = await this.Entry.save(createData)
 
-  async getById(id: number) {
-    return await this.Entry.findOne({ where: { id } });
-  }
+        return userEntry
+    }
 
-  async update(id: number, updateData: DtoEntryCreate) {
-    return await this.Entry.update(id, updateData);
-  }
+    async getAll() {
+        return (await this.Entry.find()).sort((a, b) => a.id - b.id)
+    }
 
-  async delete(id: number) {
-    return await this.Entry.delete(id);
-  }
+    async getById(id: number) {
+        const result = await this.Entry.findOne({ where: { id } })
+        if (result) {
+            return result
+        }
+        return null
+    }
+
+    async update(newDataEntries: IEntriesUpdate) {
+        const result = await this.Entry.update(newDataEntries.id, newDataEntries.update)
+        return isUpdateSuccess(result)
+    }
+
+    async delete(id: number) {
+        const result = await this.Entry.delete(id)
+        return isUpdateSuccess(result)
+    }
 }

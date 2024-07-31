@@ -3,41 +3,45 @@ import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 
 import { Reflector } from '@nestjs/core';
-import { UsersService } from '@src/users/users.service';
+
+import { AuthService } from 'auth/auth.service';
+import { UsersService } from 'user/users.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(
-    private readonly userService: UsersService,
-    private reflector: Reflector,
-  ) {}
+    constructor(
+        private readonly authService: AuthService,
+        private reflector: Reflector,
+        private readonly userService: UsersService,
+    ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const response = context.switchToHttp().getResponse<Response>();
+    canActivate(
+        context: ExecutionContext,
+    ): boolean | Promise<boolean> | Observable<boolean> {
+        const request = context.switchToHttp().getRequest<Request>();
+        const response = context.switchToHttp().getResponse<Response>();
 
-    if (request.headers.host?.includes('127.0.0.1')) return true;
+        if (request.ip?.includes('127.0.0.1')) return true;
 
-    const token = request.cookies.authorization;
+        const roles = this.reflector.get<string[]>('roles', context.getHandler()) ?? [];
 
-    if (token) {
-      const user_data = this.userService.validateToken(token);
-      if (user_data) {
-        request.user = user_data;
-      } else {
-        response.clearCookie('authorization');
-      }
+        if (roles.includes('public')) return true;
+
+        const token: string | undefined = request.cookies['authorization'];
+
+        if (!token) return false;
+
+        const user_data = this.authService.validateToken(token);
+        if (user_data) {
+            request.user = user_data;
+        } else {
+            return false;
+        }
+
+        const userRole = this.userService.resolveRoleByUserId(user_data.userId);
+
+        if (userRole && roles.includes(userRole)) return true;
+
+        return false;
     }
-
-    const roles =
-      this.reflector.get<string[]>('roles', context.getHandler()) ?? [];
-
-    if (roles.includes('public')) return true;
-
-    if (request.user && roles.includes(request.user.role)) return true;
-
-    return false;
-  }
 }

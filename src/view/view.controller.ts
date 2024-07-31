@@ -1,66 +1,51 @@
 import {
-  BadGatewayException,
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
+    BadGatewayException,
+    BadRequestException,
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
 } from '@nestjs/common';
-import { Roles } from '@src/_decorators/Roles';
-import { UserRole } from '@src/_types/user.types';
-import {
-  EnumViewNames,
-  IView__HOME,
-  SchemaView__HOME,
-} from '@src/_types/view.types';
+import { Roles } from '_decorators/Roles';
+import { UserRole } from 'shared_SmileBaby/dist/types/user.types';
+import { EnumViewNames } from 'shared_SmileBaby/dist/types/view-custom.types';
 
-import { DtoView } from './dto/HOME.dto';
+import { SchemaViewCreateUnion } from 'shared_SmileBaby/dist/contract//view.contract';
 import { ViewService } from './view.service';
 
-import Ajv from 'ajv';
-
-const ajv = new Ajv();
-
-const ValidateAjv__HOME = ajv.compile<IView__HOME>(SchemaView__HOME);
+import { EnumValidationPipe } from '_pipes/EnumValidationPipe';
 
 @Controller('/view')
 export class ViewController {
-  constructor(private readonly viewService: ViewService) {}
+    constructor(private readonly viewService: ViewService) {}
 
-  @Roles('public')
-  @Get('/getView/:name')
-  async getView(@Param('name') name: EnumViewNames) {
-    const view = await this.viewService.getView(name);
-    if (!view)
-      throw new BadGatewayException(`ViewModel:${name} не установлена `);
+    @Roles('public')
+    @Get('/getView/:name')
+    async getView(
+        @Param('name', new EnumValidationPipe(EnumViewNames)) name: EnumViewNames,
+    ) {
+        const view = await this.viewService.getView(name);
+        if (!view) throw new BadGatewayException(`ViewModel:${name} не установлена `);
 
-    return view;
-  }
-
-  @Roles(UserRole.ADMIN, UserRole.MODERATOR)
-  @Post(`/setView`)
-  async saveView(@Body() createData: DtoView) {
-    switch (createData.name) {
-      case EnumViewNames.HOME:
-        const valid = ValidateAjv__HOME(createData);
-        if (!valid) {
-          throw new BadRequestException(ValidateAjv__HOME.errors);
-        }
-
-        break;
-      default:
-        throw new BadGatewayException(
-          `Не нашлось View.name: ${createData.name}`,
-        );
+        return view;
     }
 
-    return await this.viewService.saveView(createData);
-  }
+    @Roles(UserRole.ADMIN, UserRole.MODERATOR)
+    @Post(`/setView`)
+    async saveView(@Body() createData: unknown) {
+        const result = await SchemaViewCreateUnion.safeParseAsync(createData);
 
-  @Roles(UserRole.ADMIN, UserRole.MODERATOR)
-  @Get('/getAll')
-  async getAll() {
-    return await this.viewService.getAll();
-  }
+        if (result.success) {
+            return await this.viewService.saveView(result.data);
+        } else {
+            throw new BadRequestException(result.error);
+        }
+    }
+
+    @Roles(UserRole.ADMIN, UserRole.MODERATOR)
+    @Get('/getAll')
+    async getAll() {
+        return await this.viewService.getAll();
+    }
 }

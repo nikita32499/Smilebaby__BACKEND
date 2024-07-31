@@ -5,8 +5,8 @@ import { ViewModel } from './view.model';
 import { ViewService } from './view.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ViewModel])],
-  controllers: [ViewController],
-  providers: [ViewService],
+    imports: [TypeOrmModule.forFeature([ViewModel])],
+    controllers: [ViewController],
+    providers: [ViewService],
 })
 export class ViewModule {}

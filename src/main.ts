@@ -2,27 +2,39 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 
-import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
-// somewhere in your initialization file
 
 import dotenv from 'dotenv';
-import 'src/_types/express.types';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { z } from 'zod';
 
 dotenv.config();
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('/api');
+z.object({
+    NEST_PORT: z.number(),
+    JWT_SECRET_KEY: z.string(),
+    DB_HOST: z.string(),
+    DB_PORT: z.number(),
+    DB_USER: z.string(),
+    DB_PASSWORD: z.string(),
+    DB_DATABASE: z.string(),
+}).parse({
+    ...process.env,
+    NEST_PORT: parseInt(process.env['NEST_PORT']!),
+    DB_PORT: parseInt(process.env['DB_PORT']!),
+});
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidUnknownValues: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  app.use(cookieParser());
-  await app.listen(Number(process.env.NEST_PORT));
+async function bootstrap() {
+    const app = await NestFactory.create(AppModule);
+    app.setGlobalPrefix('/api');
+
+    app.use(cookieParser());
+
+    app.useGlobalPipes(new ZodValidationPipe());
+
+    await app.listen(Number(process.env['NEST_PORT']));
 }
+
 bootstrap();
+
+console.log('dddd');

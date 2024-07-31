@@ -5,8 +5,8 @@ import { EntriesModel } from './entries.model';
 import { EntriesService } from './entries.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EntriesModel])],
-  controllers: [EntriesController],
-  providers: [EntriesService],
+    imports: [TypeOrmModule.forFeature([EntriesModel])],
+    controllers: [EntriesController],
+    providers: [EntriesService],
 })
 export class EntriesModule {}
